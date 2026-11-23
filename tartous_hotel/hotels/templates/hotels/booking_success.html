@@ -1,0 +1,27 @@
+{% extends 'hotels/base.html' %}
+
+{% block title %}Booking Confirmed | Tartous Hotels{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center mx-auto" style="max-width: 650px;">
+        <i class="bi bi-check-circle-fill text-success display-3 mb-3"></i>
+        <h2 class="fw-bold">Booking Confirmed!</h2>
+        <p class="text-muted">Thank you, <strong>{{ booking.guest_name }}</strong>. Your reservation in Tartous is confirmed.</p>
+
+        <div class="bg-light rounded-3 p-4 text-start my-4">
+            <p class="mb-2"><strong>Booking Code:</strong> <span class="badge bg-dark fs-6">{{ booking.booking_code }}</span></p>
+            <p class="mb-2"><strong>Hotel:</strong> {{ booking.room.hotel.name }}</p>
+            <p class="mb-2"><strong>Room:</strong> {{ booking.room.get_room_type_display }} (#{{ booking.room.room_number }})</p>
+            <p class="mb-2"><strong>Dates:</strong> {{ booking.check_in }} to {{ booking.check_out }} ({{ booking.nights }} night{{ booking.nights|pluralize }})</p>
+            <p class="mb-2"><strong>Guests:</strong> {{ booking.guests }}</p>
+            <p class="mb-0"><strong>Total Price:</strong> <span class="fw-bold text-success fs-5">${{ booking.total_price }}</span></p>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">Back to Hotels</a>
+            <a href="{% url 'my_bookings' %}?q={{ booking.booking_code }}" class="btn btn-sea">Manage Booking</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

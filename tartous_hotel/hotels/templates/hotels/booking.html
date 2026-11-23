@@ -1,0 +1,120 @@
+{% extends 'hotels/base.html' %}
+
+{% block title %}Book a Room | Tartous Hotels{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Room Availability & Booking</h2>
+        <p class="text-muted">Search available rooms by city, hotel, check-in/check-out dates, and number of guests.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5">
+        <form method="GET" action="{% url 'booking_page' %}" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">City</label>
+                <input type="text" name="city" list="cityList" class="form-control" placeholder="Tartous" value="{{ city }}">
+                <datalist id="cityList">
+                    {% for c in available_cities %}
+                        <option value="{{ c }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Hotel (Optional)</label>
+                <select name="hotel" class="form-select">
+                    <option value="">All Hotels</option>
+                    {% for h in all_hotels %}
+                        <option value="{{ h.id }}" {% if selected_hotel == h.id|stringformat:"s" %}selected{% endif %}>
+                            {{ h.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Check-in</label>
+                <input type="date" name="check_in" min="{{ today }}" class="form-control" value="{{ check_in }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Check-out</label>
+                <input type="date" name="check_out" min="{{ today }}" class="form-control" value="{{ check_out }}">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label fw-semibold">Guests</label>
+                <input type="number" name="guests" min="1" max="10" class="form-control" value="{{ guests }}">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-sea">
+                    <i class="bi bi-search me-1"></i> Find Rooms
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold mb-0">Available Rooms ({{ room_results|length }})</h4>
+        {% if not has_dates %}
+            <span class="badge bg-warning text-dark px-3 py-2">
+                Tip: Select Check-in & Check-out dates above to verify exact date availability
+            </span>
+        {% endif %}
+    </div>
+
+    {% if room_results %}
+        <div class="row g-4">
+            {% for item in room_results %}
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                    <div class="row g-0 h-100">
+                        <div class="col-sm-5">
+                            <img src="{{ item.room.display_image }}" class="img-fluid h-100 w-100"
+                                 style="object-fit: cover; min-height: 200px;" alt="{{ item.room.hotel.name }}">
+                        </div>
+                        <div class="col-sm-7 p-3 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="badge bg-light text-dark border mb-1">{{ item.room.hotel.name }}</span>
+                                <span class="star-gold small">
+                                    {% for _ in ""|center:item.room.hotel.stars %}<i class="bi bi-star-fill"></i>{% endfor %}
+                                </span>
+                            </div>
+                            <h5 class="fw-bold mb-1">
+                                {{ item.room.get_room_type_display }}
+                                <small class="text-muted">#{{ item.room.room_number }}</small>
+                            </h5>
+                            <p class="small text-muted mb-2">
+                                <i class="bi bi-people me-1"></i>Max {{ item.room.capacity }} guest(s)
+                                {% if item.room.has_sea_view %}
+                                    · <span class="text-primary"><i class="bi bi-water me-1"></i>Sea View</span>
+                                {% endif %}
+                            </p>
+                            <p class="small text-secondary flex-grow-1 mb-2">{{ item.room.description|truncatewords:16 }}</p>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <div>
+                                    <span class="fw-bold fs-5">${{ item.room.price_per_night }}</span>
+                                    <span class="small text-muted">/night</span>
+                                    {% if has_dates %}
+                                        <div class="small text-success fw-semibold">
+                                            Total ({{ nights }} night{{ nights|pluralize }}): ${{ item.estimated_total }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'book_room' item.room.id %}?check_in={{ check_in }}&check_out={{ check_out }}&guests={{ guests }}"
+                                   class="btn btn-sea btn-sm px-3">
+                                    Reserve
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center py-4">
+            <h5>No rooms available matching your filters.</h5>
+            <p class="mb-2">Try changing your dates, city, or guest count.</p>
+            <a href="{% url 'booking_page' %}" class="btn btn-dark btn-sm">Reset Search</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

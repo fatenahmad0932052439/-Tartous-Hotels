@@ -1,0 +1,46 @@
+{% extends 'hotels/base.html' %}
+
+{% block title %}My Bookings | Tartous Hotels{% endblock %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 850px;">
+    <h2 class="fw-bold mb-4">Find or Cancel Your Booking</h2>
+
+    <form method="GET" class="card border-0 shadow-sm p-4 mb-4">
+        <div class="input-group input-group-lg">
+            <input type="text" name="q" class="form-control"
+                   placeholder="Enter Booking Code (e.g. TRT-A1B2C3) or Email" value="{{ query }}">
+            <button class="btn btn-sea" type="submit">Find Booking</button>
+        </div>
+    </form>
+
+    {% if query %}
+        {% for b in bookings %}
+            <div class="card border-0 shadow-sm p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="fw-bold mb-1">{{ b.room.hotel.name }} — {{ b.room.get_room_type_display }}</h5>
+                        <p class="small text-muted mb-2">Code: <strong>{{ b.booking_code }}</strong> | Guest: {{ b.guest_name }}</p>
+                        <p class="mb-1">Dates: <strong>{{ b.check_in }}</strong> to <strong>{{ b.check_out }}</strong> ({{ b.nights }} night{{ b.nights|pluralize }})</p>
+                        <p class="mb-0">Total: <strong>${{ b.total_price }}</strong></p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge {% if b.status == 'confirmed' %}bg-success{% else %}bg-secondary{% endif %} mb-2">
+                            {{ b.get_status_display }}
+                        </span>
+                        {% if b.status == 'confirmed' %}
+                            <form method="POST" action="{% url 'cancel_booking' b.booking_code %}"
+                                  onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm d-block">Cancel Booking</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="alert alert-warning">No bookings found matching "{{ query }}".</div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

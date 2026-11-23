@@ -1,0 +1,76 @@
+{% extends 'hotels/base.html' %}
+
+{% block title %}Book {{ room.get_room_type_display }} | {{ hotel.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 rounded-4">
+                <h3 class="fw-bold mb-3">Complete Your Reservation</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Full Name</label>
+                            {{ form.guest_name }}
+                            {{ form.guest_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address</label>
+                            {{ form.guest_email }}
+                            {{ form.guest_email.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone Number</label>
+                            {{ form.guest_phone }}
+                            {{ form.guest_phone.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Check-in</label>
+                            {{ form.check_in }}
+                            {{ form.check_in.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Check-out</label>
+                            {{ form.check_out }}
+                            {{ form.check_out.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Guests (Max {{ room.capacity }})</label>
+                            {{ form.guests }}
+                            {{ form.guests.errors }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Special Requests</label>
+                            {{ form.special_requests }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-sea btn-lg w-100 mt-4">
+                        <i class="bi bi-check-circle me-1"></i> Confirm Booking
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <img src="{{ hotel.display_image }}" style="height: 200px; object-fit: cover;" alt="{{ hotel.name }}">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-1">{{ hotel.name }}</h5>
+                    <p class="small text-muted mb-3">{{ hotel.address }}</p>
+                    <hr>
+                    <p class="mb-1"><strong>Room:</strong> {{ room.get_room_type_display }} (#{{ room.room_number }})</p>
+                    <p class="mb-1"><strong>Capacity:</strong> Up to {{ room.capacity }} guest(s)</p>
+                    <p class="mb-0"><strong>Rate:</strong> <span class="fs-5 fw-bold text-success">${{ room.price_per_night }}</span> / night</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
